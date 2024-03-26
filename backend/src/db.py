@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import (AsyncConnection, AsyncEngine, AsyncSession,
                                     async_sessionmaker, create_async_engine)
 from sqlalchemy.orm import declarative_base
 
-from exceptions import DBSessionInitError
+from src.exceptions import DBSessionInitError
 
 
 class DatabaseSessionManager:
@@ -55,9 +55,16 @@ class DatabaseSessionManager:
 
 Base = declarative_base()
 
-sessionmanager = DatabaseSessionManager()
+# define sessions of app
+main_sessionmanager = DatabaseSessionManager()
+store_sessionmanager = DatabaseSessionManager()
 
 
-async def get_db():
-    async with sessionmanager.session() as session:
+async def get_main_db():
+    async with main_sessionmanager.session() as session:
+        yield session
+
+
+async def get_store_db():
+    async with store_sessionmanager.session() as session:
         yield session
