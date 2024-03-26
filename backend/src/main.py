@@ -2,20 +2,22 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from config import settings
-from db import sessionmanager
-from items.router import router as items_router
+from src.config import settings
+from src.db import main_sessionmanager, store_sessionmanager
+from src.items.router import router as items_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # init db host
-    sessionmanager.init(host=settings.DB_URL)
+    # init db connections
+    main_sessionmanager.init(host=settings.DATABASES.get("main").DB_URL)
+    store_sessionmanager.init(host=settings.DATABASES.get("store").DB_URL)
 
     yield
 
-    # close db session
-    await sessionmanager.close()
+    # close db sessions
+    await main_sessionmanager.close()
+    await store_sessionmanager.close()
 
 
 app = FastAPI(lifespan=lifespan)
