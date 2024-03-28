@@ -4,7 +4,6 @@ from fastapi import FastAPI
 
 from src.config import settings
 from src.db import main_sessionmanager, store_sessionmanager
-from src.items.router import router as items_router
 
 
 @asynccontextmanager
@@ -21,5 +20,3 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-app.include_router(items_router)

@@ -1,6 +1,8 @@
 import os
-from typing import Dict
+from typing import Dict, List
 
+import pytz
+from datetime import tzinfo
 from dotenv import load_dotenv
 from pydantic import BaseModel, computed_field
 from pydantic_settings import BaseSettings
@@ -37,6 +39,17 @@ class Settings(BaseSettings):
             DB_NAME=os.getenv("STORE_DB_NAME")
         )
     }
+
+    PERMISSION_ROLES: List[str] = [
+        "user",
+        "admin",
+        "all"
+    ]
+
+    DEFAULT_PERMISSION_ROLE: str = PERMISSION_ROLES[0]
+
+    TIMEZONE: str = "UTC"
+    PYTZ_TZ: tzinfo = pytz.timezone(zone=TIMEZONE)
 
 
 settings = Settings()
