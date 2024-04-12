@@ -58,13 +58,3 @@ Base = declarative_base()
 # define sessions of app
 main_sessionmanager = DatabaseSessionManager()
 store_sessionmanager = DatabaseSessionManager()
-
-
-async def get_main_db():
-    async with main_sessionmanager.session() as session:
-        yield session
-
-
-async def get_store_db():
-    async with store_sessionmanager.session() as session:
-        yield session

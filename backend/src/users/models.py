@@ -1,15 +1,31 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, func
+from datetime import datetime
+from sqlalchemy import String, func
+from sqlalchemy.orm import Mapped, mapped_column
+from pydantic import EmailStr
 
-from src.config import settings
+from src.config import settings, PermissionRoles
+from src.users.exceptions import PasswordIsEmptyError
 from src.db import Base
+import bcrypt
 
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True)
-    email = Column(String, unique=True, nullable=False)
-    password = Column(String, unique=False, nullable=True)
-    is_active = Column(Boolean, default=False)
-    role = Column(String, unique=False, nullable=False, server_default=settings.DEFAULT_PERMISSION_ROLE)
-    created_at = Column(DateTime, server_default=func.now())
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[EmailStr] = mapped_column(String(320), unique=True)
+    password: Mapped[str] 
+    role: Mapped[PermissionRoles] = mapped_column(default=settings.DEFAULT_PERMISSION_ROLE)
+
+    is_active: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(insert_default=func.now())
+
+
+    def hash_password(self) -> None:
+        if self.password is None:
+            raise PasswordIsEmptyError("Password can't be None")
+        
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(self.password.encode("utf-8"), salt)
+
+        self.password = hashed_password.decode("utf-8")

@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from typing import Dict, List
 
 import pytz
@@ -20,6 +21,12 @@ class DBConfig(BaseModel):
     @property
     def DB_URL(self) -> str:
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}"
+    
+
+class PermissionRoles(str, Enum):
+    user = "user"
+    admin = "admin"
+    any = "any"
 
 
 class Settings(BaseSettings):
@@ -40,13 +47,7 @@ class Settings(BaseSettings):
         )
     }
 
-    PERMISSION_ROLES: List[str] = [
-        "user",
-        "admin",
-        "all"
-    ]
-
-    DEFAULT_PERMISSION_ROLE: str = PERMISSION_ROLES[0]
+    DEFAULT_PERMISSION_ROLE: str = PermissionRoles.user.value
 
     TIMEZONE: str = "UTC"
     PYTZ_TZ: tzinfo = pytz.timezone(zone=TIMEZONE)
